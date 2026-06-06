@@ -42,8 +42,8 @@ def chamar_lasaro_ia(prompt_sistema, prompt_usuario):
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
     payload = {
-        # MODELO ATUALIZADO DE PRODUÇÃO DA GROQ
-        "model": "llama-3.3-70b-specdec", 
+        # MODELO DEFINITIVO, ESTÁVEL E DE LONGO PRAZO DA GROQ
+        "model": "llama-3.3-70b-versatile", 
         "messages": [
             {"role": "system", "content": prompt_sistema},
             {"role": "user", "content": prompt_usuario}
@@ -233,7 +233,7 @@ elif opcao_modulo == "Módulo IV: Sala de Mentoria (Lásaro IA)":
         "O teu estilo de comunicação é direto ao ponto, realista, firme, focado no lucro, caixa e "
         "geração de resultado real na última linha. Tu detestas métricas de vaidade e desculpas corporativas. "
         "Analisa os dados financeiros e as respostas textuais fornecidas pelo utilizador e responde sempre como o Lásaro real faria "
-        "numa sessão de mentoria à porta fechada. Cobra eficiência operacional, processos e corte de custos."
+        "numa sessão de mentoria à porta fechada. Cobra eficiência operational, processos e corte de custos."
     )
     
     CONTEXTO_EMPRESA_COMPLETO = {
