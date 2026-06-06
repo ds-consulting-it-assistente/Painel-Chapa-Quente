@@ -42,8 +42,8 @@ def chamar_lasaro_ia(prompt_sistema, prompt_usuario):
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
     payload = {
-        # MODELO ATUALIZADO DE ALTA VELOCIDADE DA GROQ
-        "model": "llama3-8b-instant", 
+        # MODELO ATUALIZADO DE PRODUÇÃO DA GROQ
+        "model": "llama-3.3-70b-specdec", 
         "messages": [
             {"role": "system", "content": prompt_sistema},
             {"role": "user", "content": prompt_usuario}
