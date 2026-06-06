@@ -6,10 +6,16 @@ import pandas as pd
 # CONFIGURAÇÃO DA INTERFACE - PADRÃO CRU DE PRIMEIRA LIGA
 str.set_page_config(page_title="Operação Chapa Quente | OCQ", page_icon="📈", layout="wide")
 
-# CREDENCIAIS DAS APIS (Substitui pelos teus dados reais)
-SUPABASE_URL = "https://YOUR_SUPABASE_PROJECT_URL.supabase.co"
-SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY"
-GROQ_API_KEY = "YOUR_GROQ_API_KEY"
+# =====================================================================
+# GOVERNANÇA DE CREDENCIAIS: LEITURA SEGURA VIA STREAMLIT SECRETS
+# =====================================================================
+try:
+    SUPABASE_URL = str.secrets["SUPABASE_URL"]
+    SUPABASE_KEY = str.secrets["SUPABASE_KEY"]
+    GROQ_API_KEY = str.secrets["GROQ_API_KEY"]
+except KeyError as e:
+    str.error(f"Erro de Infraestrutura: A variável obrigatória {e} não foi configurada nos Secrets do Streamlit.")
+    str.stop()
 
 HEADERS = {
     "apikey": SUPABASE_KEY,
@@ -47,7 +53,7 @@ def chamar_lasaro_ia(prompt_sistema, prompt_usuario):
         res = requests.post(url, headers=headers, json=payload)
         return res.json()['choices'][0]['message']['content']
     except:
-        return "Erro ao contactar o cérebro estratégico do Lásaro IA. Verifica a tua chave da API Groq."
+        return "Erro ao contactar o cérebro estratégico do Lásaro IA. Verifica a tua chave da API Groq nos Secrets."
 
 # CONTROLO DE SESSÃO E AUTENTICAÇÃO
 if 'autenticado' not in str.session_state:
@@ -223,7 +229,7 @@ elif opcao_modulo == "Módulo IV: Sala de Mentoria (Lásaro IA)":
         "O teu estilo de comunicação é direto ao ponto, realista, firme, focado no lucro, caixa e "
         "geração de resultado real na última linha. Tu detestas métricas de vaidade e desculpas corporativas. "
         "Analisa os dados financeiros e as respostas textuais fornecidas pelo utilizador e responde sempre como o Lásaro real faria "
-        "numa sessão de mentoria à porta fechada. Cobra eficiência operacional, processos e corte de custos."
+        "numa sessão de mentoria à porta fechada. Cobra eficiência operacional, processes e corte de custos."
     )
     
     CONTEXTO_EMPRESA_COMPLETO = {
