@@ -51,9 +51,13 @@ def chamar_lasaro_ia(prompt_sistema, prompt_usuario):
     }
     try:
         res = requests.post(url, headers=headers, json=payload)
-        return res.json()['choices'][0]['message']['content']
-    except:
-        return "Erro ao contactar o cérebro estratégico do Lásaro IA. Verifica a tua chave da API Groq nos Secrets."
+        res_json = res.json()
+        if 'choices' in res_json:
+            return res_json['choices'][0]['message']['content']
+        else:
+            return f"Erro retornado pela Groq API: {json.dumps(res_json)}"
+    except Exception as e:
+        return f"Erro crítico na requisição à Groq: {str(e)}. Verifica a tua chave nos Secrets."
 
 # CONTROLO DE SESSÃO E AUTENTICAÇÃO
 if 'autenticado' not in str.session_state:
@@ -67,7 +71,6 @@ if not str.session_state['autenticado']:
     campo_pass = str.text_input("Chave de Segurança (Password)", type="password")
     
     if str.button("Autenticar Operação"):
-        # Consulta direta à tabela de segurança implementada no Supabase
         usuarios = supabase_request(f"tb_usuarios?username=eq.{campo_user}", "GET")
         if usuarios and usuarios[0]['password_plana'] == campo_pass:
             str.session_state['autenticado'] = True
@@ -124,7 +127,10 @@ if opcao_modulo == "Módulo I: O Termómetro do Lásaro":
         novas_entradas = col_f2.number_input("Entradas Reais da Semana (€)", value=0.0)
         novas_saidas = col_f3.number_input("Saídas Reais da Semana (€)", value=0.0)
         
-        if str.form_submit_state("Registar Fecho de Caixa"):
+        # CORREÇÃO CRUCIAL AQUI: Mudança para a função nativa correta do Streamlit
+        botao_submit = str.form_submit_button("Registar Fecho de Caixa")
+        
+        if botao_submit:
             payload_caixa = {
                 "saldo_consolidado": novo_saldo,
                 "entradas_reais": novas_entradas,
@@ -169,7 +175,6 @@ elif opcao_modulo == "Módulo II: Auditoria & Central de Conceitos":
         termo_selecionado = str.selectbox("Selecione um indicador para auditar o conceito técnico:", 
                                          ["Margem de Contribuição", "Runway (Tempo de Sobrevivência)", "Ciclo Financeiro", "Valuation"])
         
-        # PROMPT DE CONTEXTO REAL DA EMPRESA ENVIADO PARA A IA
         prompt_sistema_glossario = (
             "Tu és o Lásaro do Carmo Jr. Explica o conceito macroeconómico solicitado de forma assertiva, "
             "crua, sem rodeios e usando estritamente os dados reais da empresa fornecidos pelo utilizador. "
@@ -196,7 +201,6 @@ elif opcao_modulo == "Módulo III: Engenharia de Projetos (Precificação)":
         
     with col_p2:
         str.subheader("⚖️ Precificação Inteligente Baseada em Valor (ROI)")
-        # Lógica matemática: preço mínimo garante 50% de margem, preço sugerido captura 3 meses de ROI gerado
         preco_minimo = custo_desenv / (1 - (margem_alvo/100))
         preco_sugerido = max(preco_minimo, poupanca_cliente * 3)
         setup_obrigatorio = preco_sugerido * 0.40
@@ -229,7 +233,7 @@ elif opcao_modulo == "Módulo IV: Sala de Mentoria (Lásaro IA)":
         "O teu estilo de comunicação é direto ao ponto, realista, firme, focado no lucro, caixa e "
         "geração de resultado real na última linha. Tu detestas métricas de vaidade e desculpas corporativas. "
         "Analisa os dados financeiros e as respostas textuais fornecidas pelo utilizador e responde sempre como o Lásaro real faria "
-        "numa sessão de mentoria à porta fechada. Cobra eficiência operacional, processes e corte de custos."
+        "numa sessão de mentoria à porta fechada. Cobra eficiência operacional, processos e corte de custos."
     )
     
     CONTEXTO_EMPRESA_COMPLETO = {
@@ -239,7 +243,7 @@ elif opcao_modulo == "Módulo IV: Sala de Mentoria (Lásaro IA)":
             "dias_runway": dias_runway
         },
         "auditoria_respostas_dono": perguntas_resumo,
-        "contratos_atuais": projetos_resumo
+        "contratos_atuais": projects_resumo if 'projects_resumo' in locals() else projetos_resumo
     }
     
     pergunta_usuario = str.text_input("O que queres discutir hoje sobre a saúde financeira do teu negócio?")
