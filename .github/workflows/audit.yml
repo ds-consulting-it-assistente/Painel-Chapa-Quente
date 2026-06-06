@@ -1,0 +1,49 @@
+name: Auditoria Operação Chapa Quente
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Executa todas as noites à meia-noite
+  workflow_dispatch: # Permite execução manual a qualquer hora
+
+jobs:
+  auditoria_caixa:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mapeamento de Dependências Técnicas
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl jq
+
+      - name: Executar Auditoria Crítica de Runway
+        env:
+          SUPABASE_URL: "https://YOUR_SUPABASE_PROJECT_URL.supabase.co"
+          SUPABASE_KEY: "YOUR_SUPABASE_ANON_KEY"
+        run: |
+          # Extrai o último registo de fluxo de caixa da base de dados relacional
+          RESPONSE=$(curl -s -X GET "${{ env.SUPABASE_URL }}/rest/v1/tb_fluxo_caixa_semanal?order=data_registo.desc&limit=1" \
+            -h "apikey: ${{ env.SUPABASE_KEY }}" \
+            -h "Authorization: Bearer ${{ env.SUPABASE_KEY }}")
+          
+          SALDO=$(echo $RESPONSE | jq '.[0].saldo_consolidado')
+          
+          # Extrai os custos fixos configurados na governança
+          CONFIG=$(curl -s -X GET "${{ env.SUPABASE_URL }}/rest/v1/tb_config_empresa?limit=1" \
+            -h "apikey: ${{ env.SUPABASE_KEY }}" \
+            -h "Authorization: Bearer ${{ env.SUPABASE_KEY }}")
+          
+          CUSTO_FIXO=$(echo $CONFIG | jq '.[0].custo_fixo_mensal')
+          
+          # Algoritmo de decisão de risco
+          if (( $(echo "$SALDO <= 0" | bc -l) )); then
+            echo "🚨 ALERTA CRÍTICO: CAIXA ZERADO OU NEGATIVO! ENTRA EM MODO DE SOBREVIVÊNCIA IMEDIATO!"
+            exit 1
+          fi
+          
+          RUNWAY_MESES=$(echo "$SALDO / $CUSTO_FIXO" | bc -l)
+          
+          if (( $(echo "$RUNWAY_MESES < 1.5" | bc -l) )); then
+            echo "⚠️ ALERTA DE RENEGOCIAÇÃO: RUNWAY MENOR QUE 45 DIAS! CORTE CUSTOS OU FAÇA VENDAS RECORRENTES IMEDIATAMENTE!"
+            exit 1
+          else
+            echo "✅ OPERAÇÃO SAUDÁVEL: Runway líquido seguro para a continuidade dos serviços."
+          fi
