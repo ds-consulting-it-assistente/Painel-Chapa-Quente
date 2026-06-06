@@ -1,0 +1,6 @@
+- name: Executar Script de Atualização Segura
+      env:
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        ADMIN2_PASSWORD: ${{ secrets.ADMIN2_PASSWORD }} # Injeção secreta ativada
+      run: python cron_update.py
