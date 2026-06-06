@@ -42,23 +42,13 @@ def chamar_lasaro_ia(prompt_sistema, prompt_usuario):
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
     payload = {
-        # CORREÇÃO MODELO ATUALIZADO: Substituição do modelo desativado pelo ativo de alta velocidade
+        # MODELO ATUALIZADO DE ALTA VELOCIDADE DA GROQ
         "model": "llama3-8b-instant", 
         "messages": [
             {"role": "system", "content": prompt_sistema},
             {"role": "user", "content": prompt_usuario}
         ],
         "temperature": 0.2
-    }
-    try:
-        res = requests.post(url, headers=headers, json=payload)
-        res_json = res.json()
-        if 'choices' in res_json:
-            return res_json['choices'][0]['message']['content']
-        else:
-            return f"Erro retornado pela Groq API: {json.dumps(res_json)}"
-    except Exception as e:
-        return f"Erro crítico na requisição à Groq: {str(e)}. Verifica a tua chave nos Secrets."
     }
     try:
         res = requests.post(url, headers=headers, json=payload)
@@ -138,7 +128,6 @@ if opcao_modulo == "Módulo I: O Termómetro do Lásaro":
         novas_entradas = col_f2.number_input("Entradas Reais da Semana (€)", value=0.0)
         novas_saidas = col_f3.number_input("Saídas Reais da Semana (€)", value=0.0)
         
-        # CORREÇÃO CRUCIAL AQUI: Mudança para a função nativa correta do Streamlit
         botao_submit = str.form_submit_button("Registar Fecho de Caixa")
         
         if botao_submit:
@@ -254,7 +243,7 @@ elif opcao_modulo == "Módulo IV: Sala de Mentoria (Lásaro IA)":
             "dias_runway": dias_runway
         },
         "auditoria_respostas_dono": perguntas_resumo,
-        "contratos_atuais": projects_resumo if 'projects_resumo' in locals() else projetos_resumo
+        "contratos_atuais": projetos_resumo
     }
     
     pergunta_usuario = str.text_input("O que queres discutir hoje sobre a saúde financeira do teu negócio?")
