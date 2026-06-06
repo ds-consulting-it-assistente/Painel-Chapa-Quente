@@ -42,12 +42,23 @@ def chamar_lasaro_ia(prompt_sistema, prompt_usuario):
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
     payload = {
-        "model": "llama3-8b-8192",
+        # CORREÇÃO MODELO ATUALIZADO: Substituição do modelo desativado pelo ativo de alta velocidade
+        "model": "llama3-8b-instant", 
         "messages": [
             {"role": "system", "content": prompt_sistema},
             {"role": "user", "content": prompt_usuario}
         ],
         "temperature": 0.2
+    }
+    try:
+        res = requests.post(url, headers=headers, json=payload)
+        res_json = res.json()
+        if 'choices' in res_json:
+            return res_json['choices'][0]['message']['content']
+        else:
+            return f"Erro retornado pela Groq API: {json.dumps(res_json)}"
+    except Exception as e:
+        return f"Erro crítico na requisição à Groq: {str(e)}. Verifica a tua chave nos Secrets."
     }
     try:
         res = requests.post(url, headers=headers, json=payload)
