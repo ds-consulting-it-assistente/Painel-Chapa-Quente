@@ -1,6 +1,33 @@
-- name: Executar Script de Atualização Segura
+name: Execucao Diaria OCQ
+
+on:
+  schedule:
+    # Corre automaticamente todos os dias às 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Mantém o botão ativo para testes manuais imediatos
+
+jobs:
+  atualizar_base_dados:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Clonar o Repositorio
+      uses: actions/checkout@v3
+
+    - name: Configurar o Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Instalar Dependencias
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+
+    - name: Executar Pipeline de Atualizacao Segura
       env:
+        # Passagem limpa e invisível dos teus segredos configurados
         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-        ADMIN2_PASSWORD: ${{ secrets.ADMIN2_PASSWORD }} # Injeção secreta ativada
+        ADMIN2_PASSWORD: ${{ secrets.ADMIN2_PASSWORD }}
       run: python cron_update.py
